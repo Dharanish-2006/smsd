@@ -38,7 +38,7 @@ function InfoCard({
   )
 }
 
-const Row = ({ k, v }: { k: string v: ReactNode }) => (
+const Row = ({ k, v }: { k: string; v: ReactNode }) => (
   <div>
     <span>{k}</span>
     <strong>{v}</strong>

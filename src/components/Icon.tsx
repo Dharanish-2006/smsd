@@ -1,7 +1,7 @@
 import { ASSETS } from "../config"
 import type { MachineStatus } from "../lib/types"
 
-export function AssetIcon({ file, size = 22 }: { file: string size?: number }) {
+export function AssetIcon({ file, size = 22 }: { file: string ;size?: number }) {
   return (
     <img
       src={`${ASSETS}/${file}`}

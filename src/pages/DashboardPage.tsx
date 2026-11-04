@@ -12,7 +12,7 @@ export const statusOf = (m: MachineState) =>
 
 const todayKwh = (m: MachineState) => m.hourlyKwh.reduce((a, b) => a + b, 0)
 
-function MachineCard({ m, onOpen }: { m: MachineState onOpen: () => void }) {
+function MachineCard({ m, onOpen }: { m: MachineState ;onOpen: () => void }) {
   const status = statusOf(m)
   const on = status === "on"
   const kwh = todayKwh(m)
