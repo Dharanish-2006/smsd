@@ -1,3 +1,4 @@
-node_modules
-.figma
 .env
+.figma
+dist
+node_modules
