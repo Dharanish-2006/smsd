@@ -1,110 +1,90 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, } from "react";
-import { hash, load, save, uid } from "../lib/storage";
-const USERS_KEY = "smm.users";
-const SESSION_KEY = "smm.session";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { api, setUnauthorizedHandler, tokenStore } from "../api";
+import { config } from "../config";
+
 const Ctx = createContext(null);
+
+const mightHaveSession = () => Boolean(tokenStore.get() || config.apiCredentials);
+const messageOf = (err) => err?.message || "Something went wrong. Please try again.";
+
 export function AuthProvider({ children }) {
-    const [users, setUsers] = useState([]);
-    const [sessionId, setSessionId] = useState(() => load(SESSION_KEY, null));
-    const [ready, setReady] = useState(false);
-    // Seed a default admin on first run.
-    useEffect(() => {
-        ;
-        (async () => {
-            let stored = load(USERS_KEY, []);
-            if (stored.length === 0) {
-                stored = [
-                    {
-                        id: uid(),
-                        username: "admin",
-                        fullName: "Administrator",
-                        email: "",
-                        mobile: "",
-                        role: "admin",
-                        status: "active",
-                        passHash: await hash("admin123"),
-                    },
-                ];
-                save(USERS_KEY, stored);
-            }
-            setUsers(stored);
-            setReady(true);
-        })();
-    }, []);
-    const persist = useCallback((next) => {
-        setUsers(next);
-        save(USERS_KEY, next);
-    }, []);
-    const user = useMemo(() => users.find((u) => u.id === sessionId && u.status === "active") ?? null, [users, sessionId]);
-    const login = useCallback(async (username, password) => {
-        const u = users.find((x) => x.username.toLowerCase() === username.trim().toLowerCase());
-        if (!u || u.passHash !== (await hash(password)))
-            return "Wrong username or password.";
-        if (u.status === "pending")
-            return "Your account is waiting for administrator approval.";
-        save(SESSION_KEY, u.id);
-        setSessionId(u.id);
-        return null;
-    }, [users]);
-    const register = useCallback(async (input) => {
-        if (users.some((u) => u.username.toLowerCase() === input.username.trim().toLowerCase()))
-            return "That username is already taken.";
-        persist([
-            ...users,
-            {
-                id: uid(),
-                username: input.username.trim(),
-                fullName: input.fullName.trim(),
-                email: input.email.trim(),
-                mobile: input.mobile,
-                role: input.role,
-                status: "pending",
-                passHash: await hash(input.password),
-            },
-        ]);
-        return null;
-    }, [users, persist]);
-    const logout = useCallback(() => {
-        save(SESSION_KEY, null);
-        setSessionId(null);
-    }, []);
-    const changePassword = useCallback(async (current, next) => {
-        if (!user)
-            return "Not signed in.";
-        if (user.passHash !== (await hash(current)))
-            return "Current password is incorrect.";
-        const passHash = await hash(next);
-        persist(users.map((u) => (u.id === user.id ? { ...u, passHash } : u)));
-        return null;
-    }, [user, users, persist]);
-    const approveUser = useCallback((id) => persist(users.map((u) => (u.id === id ? { ...u, status: "active" } : u))), [users, persist]);
-    const rejectUser = useCallback((id) => persist(users.filter((u) => u.id !== id)), [users, persist]);
-    const value = useMemo(() => ({
-        ready,
-        user,
-        users,
-        login,
-        register,
-        logout,
-        changePassword,
-        approveUser,
-        rejectUser,
-    }), [
-        ready,
-        user,
-        users,
-        login,
-        register,
-        logout,
-        changePassword,
-        approveUser,
-        rejectUser,
-    ]);
-    return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  const [user, setUser] = useState(null);
+  // Nothing to restore means we can render the sign-in screen straight away.
+  const [ready, setReady] = useState(() => !mightHaveSession());
+
+  // Any 401 from the API signs the user out everywhere in the app.
+  useEffect(() => {
+    setUnauthorizedHandler(() => setUser(null));
+    return () => setUnauthorizedHandler(() => {});
+  }, []);
+
+  // Restore the session after a page reload.
+  useEffect(() => {
+    if (!mightHaveSession()) return undefined;
+    let cancelled = false;
+    api.auth
+      .me()
+      .then((u) => !cancelled && setUser(u))
+      .catch(() => tokenStore.clear())
+      .finally(() => !cancelled && setReady(true));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Each action returns null on success or a message that is safe to show.
+  const login = useCallback(async (username, password) => {
+    try {
+      setUser(await api.auth.login(username, password));
+      return null;
+    } catch (err) {
+      return messageOf(err);
+    }
+  }, []);
+
+  const register = useCallback(async (input) => {
+    try {
+      await api.auth.register(input);
+      return null;
+    } catch (err) {
+      return messageOf(err);
+    }
+  }, []);
+
+  const changePassword = useCallback(async (current, next) => {
+    try {
+      await api.auth.changePassword(current, next);
+      return null;
+    } catch (err) {
+      return messageOf(err);
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await api.auth.logout();
+    } catch {
+      /* the local session is cleared either way */
+    }
+    setUser(null);
+  }, []);
+
+  const value = useMemo(
+    () => ({ ready, user, login, register, logout, changePassword }),
+    [ready, user, login, register, logout, changePassword],
+  );
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
+
 export function useAuth() {
-    const c = useContext(Ctx);
-    if (!c)
-        throw new Error("useAuth must be used inside AuthProvider");
-    return c;
+  const c = useContext(Ctx);
+  if (!c) throw new Error("useAuth must be used inside AuthProvider");
+  return c;
 }
