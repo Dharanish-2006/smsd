@@ -1,0 +1,8 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="380" height="64" viewBox="0 0 380 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Energy line">
+<path id="Vector" d="M6 56H374" stroke-width="1.5" stroke="#DCE2D6"/>
+<path id="Vector_2" d="M6 56H22H38H54L70 32L86 18.8L102 15.9L118 16.6L134 17.4L150 15.4L166 16.4L182 17.1L198 16.2L214 46.5L230 56H246H262L278 28.1L294 16.6L310 15.9L326 17.1L342 16.4L358 16.9L374 36V56H6Z" fill="#E3F0E5"/>
+<path id="Vector_3" d="M6 56H22H38H54L70 32L86 18.8L102 15.9L118 16.6L134 17.4L150 15.4L166 16.4L182 17.1L198 16.2L214 46.5L230 56H246H262L278 28.1L294 16.6L310 15.9L326 17.1L342 16.4L358 16.9L374 36" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="#1E6B3C"/>
+<path id="Vector_4" d="M374 40.5C376.485 40.5 378.5 38.4853 378.5 36C378.5 33.5147 376.485 31.5 374 31.5C371.515 31.5 369.5 33.5147 369.5 36C369.5 38.4853 371.515 40.5 374 40.5Z" fill="#1E6B3C" stroke-width="2" stroke="white"/>
+</g>
+</svg>

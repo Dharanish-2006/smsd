@@ -1,0 +1,12 @@
+{
+  "title": "Rice Mill Monitor",
+  "language": "en",
+  "description": "Live status, power quality and energy use for every motor in your rice mill.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "resolved": [
+    {
+      "family": "Geist",
+      "style": "Medium",
+      "font_style": "normal",
+      "font_weight": 500,
+      "format": "woff2",
+      "location": {
+        "type": "url",
+        "value": "https://static.figma.com/font/Geist_wght__1"
+      }
+    },
+    {
+      "family": "Geist",
+      "style": "Regular",
+      "font_style": "normal",
+      "font_weight": 400,
+      "format": "woff2",
+      "location": {
+        "type": "url",
+        "value": "https://static.figma.com/font/Geist_wght__1"
+      }
+    },
+    {
+      "family": "Geist",
+      "style": "SemiBold",
+      "font_style": "normal",
+      "font_weight": 600,
+      "format": "woff2",
+      "location": {
+        "type": "url",
+        "value": "https://static.figma.com/font/Geist_wght__1"
+      }
+    }
+  ],
+  "blocked": []
+}
